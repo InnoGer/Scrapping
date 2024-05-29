@@ -1,7 +1,9 @@
+import re
 import requests
 from bs4 import BeautifulSoup
 from pprint import pprint
 from urllib.parse import urljoin
+
 
 url1 = "https://www.google.com"
 
@@ -114,36 +116,86 @@ url1 = "https://www.google.com"
 ############ # Solution Docstring #############
 ###############################################
 
+# BASE_URL = "https://books.toscrape.com/index.html"
+
+
+# def main(threshold: int = 5):
+#     with requests.Session() as session:
+#         response = session.get(BASE_URL)
+
+#         soup = BeautifulSoup(response.text, 'html.parser')
+#         categories = soup.find('ul', class_="nav nav-list").find_all('a')
+
+#         # Alternative
+#         categories = soup.select('ul.nav.nav-list a')
+#         categories_urls = [category['href'] for category in categories]
+
+#         # Go to all categories page
+#         for category_url in categories_urls:
+#             full_url = urljoin(BASE_URL, category_url)
+#             response = session.get(full_url)
+#             soup = BeautifulSoup(response.text, 'html.parser')
+
+#             books = soup.find_all('article', class_="product_pod")
+#             books = soup.select('article.product_pod')
+#             category_title = soup.find("h1").text
+#             number_of_books = len(books)
+#             if number_of_books <= threshold:
+#                 print(f"La catégorie '{category_title}' ne contient pas assez de livres ({number_of_books})")
+
+
+### Exercice Récupérer les livre à ne seule étoile ####
+
 BASE_URL = "https://books.toscrape.com/index.html"
 
+def main():
+    response = get_url()
+    hrefs = analyser_test(response)
+    get_bookID(hrefs)
 
-def main(threshold: int = 5):
-    with requests.Session() as session:
-        response = session.get(BASE_URL)
+def get_url ():  
+    try:
+        response = requests.get(BASE_URL)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+            print(f"Il y a une erreur lors de l'acces au site : {e}")
+            raise requests.exceptions.RequestException from e
+    return response
 
-        soup = BeautifulSoup(response.text, 'html.parser')
-        categories = soup.find('ul', class_="nav nav-list").find_all('a')
+def analyser_test(response):
+    soup = BeautifulSoup(response.text, "html.parser")
+    star_one_book = soup.select("p.One")
+    href = []
+    for book in star_one_book:
+        try:
+            href.append(book.find_next("h3").find("a")['href'])
+        except AttributeError as e:
+            print('Impossible de trouver la balise <h3>')
+            raise AttributeError from e
+        except TypeError as e:
+            print('Impossible de trouver la balise <a>')
+            raise TypeError from e
+        except KeyError as e:
+            print("Impossible de trouver la balise 'href'  ")
+            raise KeyError from e
+    return href
 
-        # Alternative
-        categories = soup.select('ul.nav.nav-list a')
-        categories_urls = [category['href'] for category in categories]
-
-        # Go to all categories page
-        for category_url in categories_urls:
-            full_url = urljoin(BASE_URL, category_url)
-            response = session.get(full_url)
-            soup = BeautifulSoup(response.text, 'html.parser')
-
-            books = soup.find_all('article', class_="product_pod")
-            books = soup.select('article.product_pod')
-            category_title = soup.find("h1").text
-            number_of_books = len(books)
-            if number_of_books <= threshold:
-                print(f"La catégorie '{category_title}' ne contient pas assez de livres ({number_of_books})")
+def get_bookID(hrefs):
+    #Régular expression
+    book_ID = []
+    for href in hrefs:
+        try:
+            ID = re.findall(r"_\d{1,4}", href)[0][1:]
+        except IndexError as e:
+            print("Impossible de trouver l'Id du livre")
+            raise IndexError from e
+        else:
+            book_ID.append(ID)
+    print(book_ID)
 
 
 if __name__ == '__main__':
-    main(threshold=5)
+    main()
 
 
 
