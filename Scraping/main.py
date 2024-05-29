@@ -144,7 +144,9 @@ url1 = "https://www.google.com"
 #                 print(f"La catégorie '{category_title}' ne contient pas assez de livres ({number_of_books})")
 
 
-### Exercice Récupérer les livre à ne seule étoile ####
+############################################################
+####  Exercice Récupérer les livre à ne seule étoile #######
+############################################################
 
 BASE_URL = "https://books.toscrape.com/index.html"
 
