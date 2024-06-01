@@ -1,4 +1,5 @@
 import re
+from typing import List
 import requests
 from bs4 import BeautifulSoup
 from pprint import pprint
@@ -148,56 +149,109 @@ url1 = "https://www.google.com"
 ####  Exercice Récupérer les livre à ne seule étoile #######
 ############################################################
 
-BASE_URL = "https://books.toscrape.com/index.html"
+# BASE_URL = "https://books.toscrape.com/index.html"
+
+# def main():
+#     response = get_url()
+#     hrefs = analyser_test(response)
+#     get_bookID(hrefs)
+
+# def get_url ():  
+#     try:
+#         response = requests.get(BASE_URL)
+#         response.raise_for_status()
+#     except requests.exceptions.RequestException as e:
+#             print(f"Il y a une erreur lors de l'acces au site : {e}")
+#             raise requests.exceptions.RequestException from e
+#     return response
+
+# def analyser_test(response):
+#     soup = BeautifulSoup(response.text, "html.parser")
+#     star_one_book = soup.select("p.One")
+#     href = []
+#     for book in star_one_book:
+#         try:
+#             href.append(book.find_next("h3").find("a")['href'])
+#         except AttributeError as e:
+#             print('Impossible de trouver la balise <h3>')
+#             raise AttributeError from e
+#         except TypeError as e:
+#             print('Impossible de trouver la balise <a>')
+#             raise TypeError from e
+#         except KeyError as e:
+#             print("Impossible de trouver la balise 'href'  ")
+#             raise KeyError from e
+#     return href
+
+# def get_bookID(hrefs):
+#     #Régular expression
+#     book_ID = []
+#     for href in hrefs:
+#         try:
+#             ID = re.findall(r"_\d{1,4}", href)[0][1:]
+#         except IndexError as e:
+#             print("Impossible de trouver l'Id du livre")
+#             raise IndexError from e
+#         else:
+#             book_ID.append(ID)
+#     print(book_ID)
+
+
+############################################################
+####  Exercice Récupérer les livre à ne seule étoile #######
+############################################################
+
+"""
+## Fonctions à coder
+
+Fonction pour récupérer l'URL de la page suivante
+    - Récupérérer à partir du HTML directement ou de l'URL ?
+Fonction qui à partir de l'uRL d'un livre, va calculerr le prix
+Fonction pour récupérer le prix à partir du HTML
+Fonction pour récupérer la quantité disponible à partir du HTML
+Fonction pour récuérer les URLs de tous les livres de la bibliothèque
+Fonction pour récupérer les URLs sur une page spécifique
+
+"""
+
+import sys
+from typing import List
+
+from selectolax.parser import HTMLParser
+from loguru import logger
+
+logger.remove()
+
+logger.add(f"books.log", 
+           level='WARRNING', 
+           rotation='500kb')
+
+logger.add(sys.stderr, 
+           level='INFO')
+
+def get_all_books_urls(url: str) -> List[str]:
+    """get_all_books_urls : Retourne l'url de tous les livre du bibliothèque
+
+    Arguments:
+        url {str} -- _description_
+
+    Returns:
+        List[str] -- _description_
+    """
+    pass
 
 def main():
-    response = get_url()
-    hrefs = analyser_test(response)
-    get_bookID(hrefs)
 
-def get_url ():  
-    try:
-        response = requests.get(BASE_URL)
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-            print(f"Il y a une erreur lors de l'acces au site : {e}")
-            raise requests.exceptions.RequestException from e
-    return response
+    BASE_URL = "https://books.toscrape.com/index.html"
 
-def analyser_test(response):
-    soup = BeautifulSoup(response.text, "html.parser")
-    star_one_book = soup.select("p.One")
-    href = []
-    for book in star_one_book:
-        try:
-            href.append(book.find_next("h3").find("a")['href'])
-        except AttributeError as e:
-            print('Impossible de trouver la balise <h3>')
-            raise AttributeError from e
-        except TypeError as e:
-            print('Impossible de trouver la balise <a>')
-            raise TypeError from e
-        except KeyError as e:
-            print("Impossible de trouver la balise 'href'  ")
-            raise KeyError from e
-    return href
+    r = requests.get(BASE_URL)
 
-def get_bookID(hrefs):
-    #Régular expression
-    book_ID = []
-    for href in hrefs:
-        try:
-            ID = re.findall(r"_\d{1,4}", href)[0][1:]
-        except IndexError as e:
-            print("Impossible de trouver l'Id du livre")
-            raise IndexError from e
-        else:
-            book_ID.append(ID)
-    print(book_ID)
+    tree = HTMLParser(r.text)
+
+    all_link = tree.css('a')
+
+
 
 
 if __name__ == '__main__':
     main()
-
-
-
