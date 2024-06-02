@@ -249,8 +249,13 @@ def get_all_books_urls_on_page(tree: HTMLParser) -> List[str]:
     Returns:
         List[str] -- La liste des URL de tous les livres sur une page
     """
-
-    pass
+    base_url = "https://books.toscrape.com/index.html"
+    try:
+        all_links = tree.css('h3 > a')
+        return [urljoin(base_url, link.attributes['href']) for link in all_links]
+    except Exception as e:
+        logger.error(f"Erreur lors de la récupération des liens 'href' : {e}")
+        return []
 
 def get_next_page_url(tree: HTMLParser) -> str:
     """ Trouver l'URL de la page suivante à partir d'un objet HTMLparser
@@ -349,4 +354,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    base_url = "https://books.toscrape.com/index.html"
+    r = requests.get(base_url)
+    tree = HTMLParser(r.text)
+    get_all_books_urls_on_page(tree=tree)
