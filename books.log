@@ -39,3 +39,4 @@
 2024-06-02 19:48:29.835 | ERROR    | __main__:get_all_books_urls:248 - Error lors de l'acces à l'url : https://books.toscrape.com/page-3.html : 404 Client Error: Not Found for url: https://books.toscrape.com/page-3.html
 2024-06-02 19:48:30.667 | ERROR    | __main__:get_all_books_urls:248 - Error lors de l'acces à l'url : https://books.toscrape.com/page-3.html : 404 Client Error: Not Found for url: https://books.toscrape.com/page-3.html
 2024-06-02 19:48:31.543 | ERROR    | __main__:get_all_books_urls:248 - Error lors de l'acces à l'url : https://books.toscrape.com/page-3.html : 404 Client Error: Not Found for url: https://books.toscrape.com/page-3.html
+2024-06-02 20:11:49.423 | ERROR    | __main__:get_book_quantity_from_page:356 - Aucun nombre n'a été trouver dans le noeud p.instock.availability sur la page : list index out of range

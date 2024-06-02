@@ -238,21 +238,23 @@ def get_all_books_urls(url: str) -> List[str]:
     Returns:
         List[str] -- Tous les urls de toutes les pages
     """
-    urls = []
-    while True:
-        logger.info(f"Scrapping page at {url}")
-        try:
-            r = requests.get(url)
-            r.raise_for_status()
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Error lors de l'acces à l'url : {url} : {e}")
-            continue
-        tree = HTMLParser(r.text)
+    with requests.Session() as session:
+        urls = []
+        while True:
+            logger.info(f"Scrapping page at {url}")
+            try:
+                r = session.get(url)
+                r.raise_for_status()
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Error lors de l'acces à l'url : {url} : {e}")
+                continue
+            tree = HTMLParser(r.text)
 
-        urls.extend(get_all_books_urls_on_page(tree=tree))
-        url = get_next_page_url(tree=tree)
-        if not url:
-            break
+            urls.extend(get_all_books_urls_on_page(tree=tree))
+            url = get_next_page_url(tree=tree)
+            if not url:
+                break
+        return urls
 
 def get_all_books_urls_on_page(tree: HTMLParser) -> List[str]:
     """ Trouve l'URL de tous les livres présent sur la page
@@ -289,7 +291,7 @@ def get_next_page_url(tree: HTMLParser) -> str | None:
     return None
     
 
-def get_books_price(url: str) -> float:
+def get_books_price(url: str, sesssion: requests.Session = None) -> float:
 
     """Calcule la valeur d'un livre à partir de l'url
 
@@ -300,12 +302,17 @@ def get_books_price(url: str) -> float:
         float -- le coût de livre ( prix multiplié par le quantité)
     """
     try:
-        response = requests.get(url)
+        if sesssion:
+            response = sesssion.get(url)
+        else:
+            response = requests.get(url)
         response.raise_for_status()
         tree = HTMLParser(response.text)
         price = get_book_price_from_page(tree=tree)
         quantity = get_book_quantity_from_page(tree=tree)
-        return price * quantity
+        price_quantity = price * quantity
+        logger.info(f"Get book price at {url} : foud {price_quantity}")
+        return price_quantity
     except requests.exceptions.RequestException as e:
         logger.error(f"Erreur lors de la requete HTML : {e}")
         return 0.0
@@ -358,22 +365,18 @@ def get_book_quantity_from_page(tree: HTMLParser) -> int:
 
 def main():
 
-    base_url = "https://books.toscrape.com/index.html"
+    base_url = "https://books.toscrape.com/catalogue/page-1.html"
 
-    price= get_books_price("https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html")
+    all_books_urls = get_all_books_urls(base_url)
+    total_price = []
+    with requests.Session() as session:
+        for url in all_books_urls:
+            price = get_books_price(url=url, sesssion=session)
+            total_price.append(price)
 
-    print( price)
-    # all_books_urls = get_all_books_urls(base_url)
-    # total_price = []
-    # for url in all_books_urls:
-    #     price = get_books_price(url)
-    #     total_price.append(price)
-
-    # return sum(total_price)
+    print(sum(total_price))
 
 
 
 if __name__ == '__main__':
-    base_url = "https://books.toscrape.com/catalogue/page-1.html"
-
-    get_all_books_urls(base_url)
+    main()
