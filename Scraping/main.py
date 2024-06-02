@@ -223,21 +223,82 @@ from loguru import logger
 logger.remove()
 
 logger.add(f"books.log", 
-           level='WARRNING', 
+           level='WARNING', 
            rotation='500kb')
 
 logger.add(sys.stderr, 
            level='INFO')
 
 def get_all_books_urls(url: str) -> List[str]:
-    """get_all_books_urls : Retourne l'url de tous les livre du bibliothèque
+    """
+    Retourne tous l'url de tous les livres de la bibliothèthe à partir d'un url de départ
 
     Arguments:
-        url {str} -- _description_
+        url {str} -- l'URL de départ
+    Returns:
+        List[str] -- Tous les urls de toutes les pages
+    """
+    pass
+
+def get_allbooks_urls_on_page(tree: HTMLParser) -> List[str]:
+    """ Trouve l'URL de tous les livres présent sur la page
+
+    Arguments:
+        url {str} -- l'objet HTML parser
 
     Returns:
-        List[str] -- _description_
+        List[str] -- La liste des URL de tous les livres sur une page
     """
+
+    pass
+
+def get_next_page_url(tree: HTMLParser) -> str:
+    """ Trouver l'URL de la page suivante à partir d'un objet HTMLparser
+
+    Arguments:
+        tree {HTMLParser} -- l'Objet HTMLParser de la page
+
+    Returns:
+        str -- l'URL de la page suivante
+    """
+
+    pass
+
+def get_books_price_baseon_quantity(url: str) -> float:
+
+    """Calcule la valeur d'un livre à partir de l'url
+
+    Arguments:
+        url {str} -- l'URL de la page du livre
+
+    Returns:
+        float -- le coût de livre ( prix multiplié par le quantité)
+    """
+    pass
+
+def get_book_price(tree: HTMLParser) -> float:
+    """ trouve le prix d'un livre à partir d'un objet HTML
+
+    Arguments:
+        tree {HTMLParser} -- Objet HTML de la page du livre
+
+    Returns:
+        float -- le prix du livre
+    """
+
+    pass
+
+
+def get_book_quantity(tree: HTMLParser) -> int:
+    """ trouve la quantité d'un livre à partir d'un objet HTML
+
+    Arguments:
+        tree {HTMLParser} -- Objet HTML de la page du livre
+
+    Returns:
+        float -- la quantité du livre
+    """
+
     pass
 
 def main():
