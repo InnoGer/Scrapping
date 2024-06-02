@@ -240,7 +240,7 @@ def get_all_books_urls(url: str) -> List[str]:
     """
     pass
 
-def get_allbooks_urls_on_page(tree: HTMLParser) -> List[str]:
+def get_all_books_urls_on_page(tree: HTMLParser) -> List[str]:
     """ Trouve l'URL de tous les livres présent sur la page
 
     Arguments:
@@ -282,7 +282,7 @@ def get_books_price(url: str) -> float:
         quantity = get_book_quantity_from_page(tree=tree)
         return price * quantity
     except requests.exceptions.RequestException as e:
-        logger.error(f"Erreur lors de la requete HTML {e}")
+        logger.error(f"Erreur lors de la requete HTML : {e}")
         return 0.0
 
 def get_book_price_from_page(tree: HTMLParser) -> float:
@@ -303,7 +303,7 @@ def get_book_price_from_page(tree: HTMLParser) -> float:
     try:
         price = re.findall(r"[0-9.]+", price_string)[0]
     except IndexError as e:
-        logger.error(f'Impossible de trouver le prix du livree {e}')
+        logger.error(f'Impossible de trouver le prix du livree : {e}')
         return 0.0
     else:
         return float(price)
@@ -319,19 +319,17 @@ def get_book_quantity_from_page(tree: HTMLParser) -> int:
     Returns:
         float -- la quantité du livre
     """
-    quantity_noeud = tree.css_first("p.instock.availability")
-    if quantity_noeud:
-        quantity_string = quantity_noeud.text()
-    else:
-        logger.error(f"Aucun noeud de quantité trouver sur la page")
-        return 0.0
     try:
-        quantity = re.findall(r"[0-9.]+", quantity_string)[0]
+        quantity_noeud = tree.css_first("p.instock.availability")
+        return int(re.findall(r"\d+", quantity_noeud.text())[0])
+    except AttributeError as e:
+        logger.error(f"Aucun noeud p.instock.availability n'a été trouver sur la page")
+        return 0
     except IndexError as e:
-        logger.error(f'Impossible de trouver la quantité dispoblie du livre du livree {e}')
-        return 0.0
-    else:
-        return int(quantity)
+        logger.error(f"Aucun nombre n'a été trouver dans le noeud p.instock.availability sur la page : {e}")
+        return 0
+
+
 
 def main():
 
