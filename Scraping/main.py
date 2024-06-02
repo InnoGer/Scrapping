@@ -301,7 +301,7 @@ def get_book_price_from_page(tree: HTMLParser) -> float:
         logger.error(f"Aucun noeud de prix trouver sur la page")
         return 0.0
     try:
-        price = re.findall(r"[0-9.]+", "affsdfgsd")[0]
+        price = re.findall(r"[0-9.]+", price_string)[0]
     except IndexError as e:
         logger.error(f'Impossible de trouver le prix du livree {e}')
         return 0.0
@@ -319,26 +319,27 @@ def get_book_quantity_from_page(tree: HTMLParser) -> int:
     Returns:
         float -- la quantité du livre
     """
-    quantity_noeud = tree.css_first("p.price_color")
-    if price_noeud:
-        price_string = price_noeud.text()
+    quantity_noeud = tree.css_first("p.instock.availability")
+    if quantity_noeud:
+        quantity_string = quantity_noeud.text()
     else:
-        logger.error(f"Aucun noeud de prix trouver sur la page")
+        logger.error(f"Aucun noeud de quantité trouver sur la page")
         return 0.0
     try:
-        price = re.findall(r"[0-9.]+", "affsdfgsd")[0]
+        quantity = re.findall(r"[0-9.]+", quantity_string)[0]
     except IndexError as e:
-        logger.error(f'Impossible de trouver le prix du livree {e}')
+        logger.error(f'Impossible de trouver la quantité dispoblie du livre du livree {e}')
         return 0.0
     else:
-        return float(price)
+        return int(quantity)
 
 def main():
 
     base_url = "https://books.toscrape.com/index.html"
 
-    get_books_price("https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html")
+    price= get_books_price("https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html")
 
+    print( price)
     # all_books_urls = get_all_books_urls(base_url)
     # total_price = []
     # for url in all_books_urls:

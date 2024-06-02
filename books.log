@@ -1,0 +1,2 @@
+2024-06-02 17:18:23.666 | ERROR    | __main__:get_book_price_from_page:301 - Aucun noeud de prix trouver sur la page
+2024-06-02 17:20:23.621 | ERROR    | __main__:get_book_price_from_page:306 - Impossible de trouver le prix du livree list index out of range
