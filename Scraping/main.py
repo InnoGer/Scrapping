@@ -238,7 +238,21 @@ def get_all_books_urls(url: str) -> List[str]:
     Returns:
         List[str] -- Tous les urls de toutes les pages
     """
-    pass
+    urls = []
+    while True:
+        logger.info(f"Scrapping page at {url}")
+        try:
+            r = requests.get(url)
+            r.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Error lors de l'acces à l'url : {url} : {e}")
+            continue
+        tree = HTMLParser(r.text)
+
+        urls.extend(get_all_books_urls_on_page(tree=tree))
+        url = get_next_page_url(tree=tree)
+        if not url:
+            break
 
 def get_all_books_urls_on_page(tree: HTMLParser) -> List[str]:
     """ Trouve l'URL de tous les livres présent sur la page
@@ -249,7 +263,7 @@ def get_all_books_urls_on_page(tree: HTMLParser) -> List[str]:
     Returns:
         List[str] -- La liste des URL de tous les livres sur une page
     """
-    base_url = "https://books.toscrape.com/index.html"
+    base_url = "https://books.toscrape.com/catalogue/"
     try:
         all_links = tree.css('h3 > a')
         return [urljoin(base_url, link.attributes['href']) for link in all_links]
@@ -266,7 +280,7 @@ def get_next_page_url(tree: HTMLParser) -> str | None:
     Returns:
         str -- l'URL de la page suivante
     """
-    base_url = "https://books.toscrape.com/index.html"
+    base_url = "https://books.toscrape.com/catalogue/"
     next_page_node = tree.css_first("li.next > a")
     if next_page_node and next_page_node.attributes['href']:
         return urljoin(base_url, next_page_node.attributes['href'])
@@ -274,7 +288,6 @@ def get_next_page_url(tree: HTMLParser) -> str | None:
     logger.info(f"Il n'a plus de bouton next sur la page")
     return None
     
-    print(next_page_node)
 
 def get_books_price(url: str) -> float:
 
@@ -361,7 +374,6 @@ def main():
 
 
 if __name__ == '__main__':
-    base_url = "https://books.toscrape.com/index.html"
-    r = requests.get(base_url)
-    tree = HTMLParser(r.text)
-    get_next_page_url(tree=tree)
+    base_url = "https://books.toscrape.com/catalogue/page-1.html"
+
+    get_all_books_urls(base_url)
