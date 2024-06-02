@@ -71,11 +71,13 @@ url2 = "https://books.toscrape.com/"
 response = requests.get(url2)
 
 soup = BeautifulSoup(response.text, 'html.parser')
-articles = soup.find_all('article', class_='product_pod')
+# articles = soup.find_all('article', class_='product_pod')
 
-for image in articles:
-    links = image.find_all('a')
-    if len(links) >= 2:
-        link = links[1]
-        print(link.get('title'))
+# for image in articles:
+#     links = image.find_all('a')
+#     if len(links) >= 2:
+#         link = links[1]
+#         print(link.get('title'))
 
+Titre = [a['title'] for a in soup.find_all('a', title=True)]
+pprint(Titre)
