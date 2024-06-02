@@ -1,6 +1,10 @@
+import re
+from typing import List
 import requests
 from bs4 import BeautifulSoup
 from pprint import pprint
+from urllib.parse import urljoin
+
 
 url1 = "https://www.google.com"
 
@@ -66,11 +70,11 @@ url1 = "https://www.google.com"
 #     print(image.get('src'))
 
 
-url2 = "https://books.toscrape.com/"
+# url2 = "https://books.toscrape.com/"
 
-response = requests.get(url2)
+# response = requests.get(url2)
 
-soup = BeautifulSoup(response.text, 'html.parser')
+# soup = BeautifulSoup(response.text, 'html.parser')
 # articles = soup.find_all('article', class_='product_pod')
 
 # for image in articles:
@@ -79,5 +83,175 @@ soup = BeautifulSoup(response.text, 'html.parser')
 #         link = links[1]
 #         print(link.get('title'))
 
-Titre = [a['title'] for a in soup.find_all('a', title=True)]
-pprint(Titre)
+
+###############################################
+#######    Ma proposition de correction #######
+###############################################
+
+# url = 'https://books.toscrape.com/'
+
+# categories_dict = {}
+
+# with requests.Session() as session:
+#     response = session.get(url)
+#     soup = BeautifulSoup(response.text, "html.parser")
+#     categories_name = soup.find('aside').find('ul').find('li').find('ul')
+#     list_cat_name = [chield.text.strip() for chield in categories_name.children if chield.name]
+#     hrefs = categories_name.find_all('a')
+#     list_cat_href = [urljoin(url, chield['href']) for chield in hrefs]
+#     categories_href = {key: value for key, value in zip(list_cat_name, list_cat_href)}
+#     Seuil_de_livre = int(input("Afficher les catégories dans un seuil de : "))
+
+#     for key, href in categories_href.items():
+#         response_url = session.get(href)
+#         soup_url = BeautifulSoup(response_url.text, 'html.parser')
+#         liste_livre = soup_url.find('section').find('ol', class_='row')
+#         nombre_livre = len([li for li in liste_livre.children])
+#         if nombre_livre < Seuil_de_livre:
+#             print(f"La catégories '{key}' ne contient que ({nombre_livre}) livres")
+#         else:
+#             print(f"La catégories '{key}' contient assez de livre ({nombre_livre})")
+
+
+###############################################
+############ # Solution Docstring #############
+###############################################
+
+# BASE_URL = "https://books.toscrape.com/index.html"
+
+
+# def main(threshold: int = 5):
+#     with requests.Session() as session:
+#         response = session.get(BASE_URL)
+
+#         soup = BeautifulSoup(response.text, 'html.parser')
+#         categories = soup.find('ul', class_="nav nav-list").find_all('a')
+
+#         # Alternative
+#         categories = soup.select('ul.nav.nav-list a')
+#         categories_urls = [category['href'] for category in categories]
+
+#         # Go to all categories page
+#         for category_url in categories_urls:
+#             full_url = urljoin(BASE_URL, category_url)
+#             response = session.get(full_url)
+#             soup = BeautifulSoup(response.text, 'html.parser')
+
+#             books = soup.find_all('article', class_="product_pod")
+#             books = soup.select('article.product_pod')
+#             category_title = soup.find("h1").text
+#             number_of_books = len(books)
+#             if number_of_books <= threshold:
+#                 print(f"La catégorie '{category_title}' ne contient pas assez de livres ({number_of_books})")
+
+
+############################################################
+####  Exercice Récupérer les livre à ne seule étoile #######
+############################################################
+
+# BASE_URL = "https://books.toscrape.com/index.html"
+
+# def main():
+#     response = get_url()
+#     hrefs = analyser_test(response)
+#     get_bookID(hrefs)
+
+# def get_url ():  
+#     try:
+#         response = requests.get(BASE_URL)
+#         response.raise_for_status()
+#     except requests.exceptions.RequestException as e:
+#             print(f"Il y a une erreur lors de l'acces au site : {e}")
+#             raise requests.exceptions.RequestException from e
+#     return response
+
+# def analyser_test(response):
+#     soup = BeautifulSoup(response.text, "html.parser")
+#     star_one_book = soup.select("p.One")
+#     href = []
+#     for book in star_one_book:
+#         try:
+#             href.append(book.find_next("h3").find("a")['href'])
+#         except AttributeError as e:
+#             print('Impossible de trouver la balise <h3>')
+#             raise AttributeError from e
+#         except TypeError as e:
+#             print('Impossible de trouver la balise <a>')
+#             raise TypeError from e
+#         except KeyError as e:
+#             print("Impossible de trouver la balise 'href'  ")
+#             raise KeyError from e
+#     return href
+
+# def get_bookID(hrefs):
+#     #Régular expression
+#     book_ID = []
+#     for href in hrefs:
+#         try:
+#             ID = re.findall(r"_\d{1,4}", href)[0][1:]
+#         except IndexError as e:
+#             print("Impossible de trouver l'Id du livre")
+#             raise IndexError from e
+#         else:
+#             book_ID.append(ID)
+#     print(book_ID)
+
+
+############################################################
+####  Exercice Récupérer les livre à ne seule étoile #######
+############################################################
+
+"""
+## Fonctions à coder
+
+Fonction pour récupérer l'URL de la page suivante
+    - Récupérérer à partir du HTML directement ou de l'URL ?
+Fonction qui à partir de l'uRL d'un livre, va calculerr le prix
+Fonction pour récupérer le prix à partir du HTML
+Fonction pour récupérer la quantité disponible à partir du HTML
+Fonction pour récuérer les URLs de tous les livres de la bibliothèque
+Fonction pour récupérer les URLs sur une page spécifique
+
+"""
+
+import sys
+from typing import List
+
+from selectolax.parser import HTMLParser
+from loguru import logger
+
+logger.remove()
+
+logger.add(f"books.log", 
+           level='WARRNING', 
+           rotation='500kb')
+
+logger.add(sys.stderr, 
+           level='INFO')
+
+def get_all_books_urls(url: str) -> List[str]:
+    """get_all_books_urls : Retourne l'url de tous les livre du bibliothèque
+
+    Arguments:
+        url {str} -- _description_
+
+    Returns:
+        List[str] -- _description_
+    """
+    pass
+
+def main():
+
+    BASE_URL = "https://books.toscrape.com/index.html"
+
+    r = requests.get(BASE_URL)
+
+    tree = HTMLParser(r.text)
+
+    all_link = tree.css('a')
+
+
+
+
+if __name__ == '__main__':
+    main()
