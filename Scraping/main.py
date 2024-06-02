@@ -264,7 +264,7 @@ def get_next_page_url(tree: HTMLParser) -> str:
 
     pass
 
-def get_books_price_baseon_quantity(url: str) -> float:
+def get_books_price(url: str) -> float:
 
     """Calcule la valeur d'un livre à partir de l'url
 
@@ -274,9 +274,18 @@ def get_books_price_baseon_quantity(url: str) -> float:
     Returns:
         float -- le coût de livre ( prix multiplié par le quantité)
     """
-    pass
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        tree = HTMLParser(response.text)
+        price = get_book_price_from_page(tree=tree)
+        quantity = get_book_quantity_from_page(tree=tree)
+        return price * quantity
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Erreur lors de la requete HTML {e}")
+        return 0.0
 
-def get_book_price(tree: HTMLParser) -> float:
+def get_book_price_from_page(tree: HTMLParser) -> float:
     """ trouve le prix d'un livre à partir d'un objet HTML
 
     Arguments:
@@ -288,8 +297,8 @@ def get_book_price(tree: HTMLParser) -> float:
 
     pass
 
+def get_book_quantity_from_page(tree: HTMLParser) -> int:
 
-def get_book_quantity(tree: HTMLParser) -> int:
     """ trouve la quantité d'un livre à partir d'un objet HTML
 
     Arguments:
@@ -303,14 +312,15 @@ def get_book_quantity(tree: HTMLParser) -> int:
 
 def main():
 
-    BASE_URL = "https://books.toscrape.com/index.html"
+    base_url = "https://books.toscrape.com/index.html"
 
-    r = requests.get(BASE_URL)
+    all_books_urls = get_all_books_urls(base_url)
+    total_price = []
+    for url in all_books_urls:
+        price = get_books_price(url)
+        total_price.append(price)
 
-    tree = HTMLParser(r.text)
-
-    all_link = tree.css('a')
-
+    return sum(total_price)
 
 
 
