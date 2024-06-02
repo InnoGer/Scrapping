@@ -257,7 +257,7 @@ def get_all_books_urls_on_page(tree: HTMLParser) -> List[str]:
         logger.error(f"Erreur lors de la récupération des liens 'href' : {e}")
         return []
 
-def get_next_page_url(tree: HTMLParser) -> str:
+def get_next_page_url(tree: HTMLParser) -> str | None:
     """ Trouver l'URL de la page suivante à partir d'un objet HTMLparser
 
     Arguments:
@@ -266,8 +266,15 @@ def get_next_page_url(tree: HTMLParser) -> str:
     Returns:
         str -- l'URL de la page suivante
     """
-
-    pass
+    base_url = "https://books.toscrape.com/index.html"
+    next_page_node = tree.css_first("li.next > a")
+    if next_page_node and next_page_node.attributes['href']:
+        return urljoin(base_url, next_page_node.attributes['href'])
+    
+    logger.info(f"Il n'a plus de bouton next sur la page")
+    return None
+    
+    print(next_page_node)
 
 def get_books_price(url: str) -> float:
 
@@ -357,4 +364,4 @@ if __name__ == '__main__':
     base_url = "https://books.toscrape.com/index.html"
     r = requests.get(base_url)
     tree = HTMLParser(r.text)
-    get_all_books_urls_on_page(tree=tree)
+    get_next_page_url(tree=tree)
