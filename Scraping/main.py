@@ -197,9 +197,11 @@ url1 = "https://www.google.com"
 #     print(book_ID)
 
 
-############################################################
-####  Exercice Récupérer les livre à ne seule étoile #######
-############################################################
+
+
+################################################################################
+#####  Exercice Récupérer Le prix des livre et la valeur total des stocks ######
+################################################################################
 
 """
 ## Fonctions à coder
@@ -214,168 +216,196 @@ Fonction pour récupérer les URLs sur une page spécifique
 
 """
 
-import sys
-from typing import List
+# import sys
+# from typing import List
 
-from selectolax.parser import HTMLParser
-from loguru import logger
+# from selectolax.parser import HTMLParser
+# from loguru import logger
 
-logger.remove()
+# logger.remove()
 
-logger.add(f"books.log", 
-           level='WARNING', 
-           rotation='500kb')
+# logger.add(f"books.log", 
+#            level='WARNING', 
+#            rotation='500kb')
 
-logger.add(sys.stderr, 
-           level='INFO')
+# logger.add(sys.stderr, 
+#            level='INFO')
 
-def get_all_books_urls(url: str) -> List[str]:
-    """
-    Retourne tous l'url de tous les livres de la bibliothèthe à partir d'un url de départ
+# def get_all_books_urls(url: str) -> List[str]:
+#     """
+#     Retourne tous l'url de tous les livres de la bibliothèthe à partir d'un url de départ
 
-    Arguments:
-        url {str} -- l'URL de départ
-    Returns:
-        List[str] -- Tous les urls de toutes les pages
-    """
-    with requests.Session() as session:
-        urls = []
-        while True:
-            logger.info(f"Scrapping page at {url}")
-            try:
-                r = session.get(url)
-                r.raise_for_status()
-            except requests.exceptions.RequestException as e:
-                logger.error(f"Error lors de l'acces à l'url : {url} : {e}")
-                continue
-            tree = HTMLParser(r.text)
+#     Arguments:
+#         url {str} -- l'URL de départ
+#     Returns:
+#         List[str] -- Tous les urls de toutes les pages
+#     """
+#     with requests.Session() as session:
+#         urls = []
+#         while True:
+#             logger.info(f"Scrapping page at {url}")
+#             try:
+#                 r = session.get(url)
+#                 r.raise_for_status()
+#             except requests.exceptions.RequestException as e:
+#                 logger.error(f"Error lors de l'acces à l'url : {url} : {e}")
+#                 continue
+#             tree = HTMLParser(r.text)
 
-            urls.extend(get_all_books_urls_on_page(tree=tree))
-            url = get_next_page_url(tree=tree)
-            if not url:
-                break
-        return urls
+#             urls.extend(get_all_books_urls_on_page(tree=tree))
+#             url = get_next_page_url(tree=tree)
+#             if not url:
+#                 break
+#         return urls
 
-def get_all_books_urls_on_page(tree: HTMLParser) -> List[str]:
-    """ Trouve l'URL de tous les livres présent sur la page
+# def get_all_books_urls_on_page(tree: HTMLParser) -> List[str]:
+#     """ Trouve l'URL de tous les livres présent sur la page
 
-    Arguments:
-        url {str} -- l'objet HTML parser
+#     Arguments:
+#         url {str} -- l'objet HTML parser
 
-    Returns:
-        List[str] -- La liste des URL de tous les livres sur une page
-    """
-    base_url = "https://books.toscrape.com/catalogue/"
-    try:
-        all_links = tree.css('h3 > a')
-        return [urljoin(base_url, link.attributes['href']) for link in all_links]
-    except Exception as e:
-        logger.error(f"Erreur lors de la récupération des liens 'href' : {e}")
-        return []
+#     Returns:
+#         List[str] -- La liste des URL de tous les livres sur une page
+#     """
+#     base_url = "https://books.toscrape.com/catalogue/"
+#     try:
+#         all_links = tree.css('h3 > a')
+#         return [urljoin(base_url, link.attributes['href']) for link in all_links]
+#     except Exception as e:
+#         logger.error(f"Erreur lors de la récupération des liens 'href' : {e}")
+#         return []
 
-def get_next_page_url(tree: HTMLParser) -> str | None:
-    """ Trouver l'URL de la page suivante à partir d'un objet HTMLparser
+# def get_next_page_url(tree: HTMLParser) -> str | None:
+#     """ Trouver l'URL de la page suivante à partir d'un objet HTMLparser
 
-    Arguments:
-        tree {HTMLParser} -- l'Objet HTMLParser de la page
+#     Arguments:
+#         tree {HTMLParser} -- l'Objet HTMLParser de la page
 
-    Returns:
-        str -- l'URL de la page suivante
-    """
-    base_url = "https://books.toscrape.com/catalogue/"
-    next_page_node = tree.css_first("li.next > a")
-    if next_page_node and next_page_node.attributes['href']:
-        return urljoin(base_url, next_page_node.attributes['href'])
+#     Returns:
+#         str -- l'URL de la page suivante
+#     """
+#     base_url = "https://books.toscrape.com/catalogue/"
+#     next_page_node = tree.css_first("li.next > a")
+#     if next_page_node and next_page_node.attributes['href']:
+#         return urljoin(base_url, next_page_node.attributes['href'])
     
-    logger.info(f"Il n'a plus de bouton next sur la page")
-    return None
+#     logger.info(f"Il n'a plus de bouton next sur la page")
+#     return None   
+
+# def get_books_price(url: str, sesssion: requests.Session = None) -> float:
+
+#     """Calcule la valeur d'un livre à partir de l'url
+
+#     Arguments:
+#         url {str} -- l'URL de la page du livre
+
+#     Returns:
+#         float -- le coût de livre ( prix multiplié par le quantité)
+#     """
+#     try:
+#         if sesssion:
+#             response = sesssion.get(url)
+#         else:
+#             response = requests.get(url)
+#         response.raise_for_status()
+#         tree = HTMLParser(response.text)
+#         price = get_book_price_from_page(tree=tree)
+#         quantity = get_book_quantity_from_page(tree=tree)
+#         price_quantity = price * quantity
+#         logger.info(f"Get book price at {url} : foud {price_quantity}")
+#         return price_quantity
+#     except requests.exceptions.RequestException as e:
+#         logger.error(f"Erreur lors de la requete HTML : {e}")
+#         return 0.0
+
+# def get_book_price_from_page(tree: HTMLParser) -> float:
+#     """ trouve le prix d'un livre à partir d'un objet HTML
+
+#     Arguments:
+#         tree {HTMLParser} -- Objet HTML de la page du livre
+
+#     Returns:
+#         float -- le prix du livre
+#     """
+#     price_noeud = tree.css_first("p.price_color")
+#     if price_noeud:
+#         price_string = price_noeud.text()
+#     else:
+#         logger.error(f"Aucun noeud de prix trouver sur la page")
+#         return 0.0
+#     try:
+#         price = re.findall(r"[0-9.]+", price_string)[0]
+#     except IndexError as e:
+#         logger.error(f'Impossible de trouver le prix du livree : {e}')
+#         return 0.0
+#     else:
+#         return float(price)
     
+# def get_book_quantity_from_page(tree: HTMLParser) -> int:
 
-def get_books_price(url: str, sesssion: requests.Session = None) -> float:
+#     """ trouve la quantité d'un livre à partir d'un objet HTML
 
-    """Calcule la valeur d'un livre à partir de l'url
+#     Arguments:
+#         tree {HTMLParser} -- Objet HTML de la page du livre
 
-    Arguments:
-        url {str} -- l'URL de la page du livre
+#     Returns:
+#         float -- la quantité du livre
+#     """
+#     try:
+#         quantity_noeud = tree.css_first("p.instock.availability")
+#         return int(re.findall(r"\d+", quantity_noeud.text())[0])
+#     except AttributeError as e:
+#         logger.error(f"Aucun noeud p.instock.availability n'a été trouver sur la page")
+#         return 0
+#     except IndexError as e:
+#         logger.error(f"Aucun nombre n'a été trouver dans le noeud p.instock.availability sur la page : {e}")
+#         return 0
 
-    Returns:
-        float -- le coût de livre ( prix multiplié par le quantité)
-    """
-    try:
-        if sesssion:
-            response = sesssion.get(url)
-        else:
-            response = requests.get(url)
-        response.raise_for_status()
-        tree = HTMLParser(response.text)
-        price = get_book_price_from_page(tree=tree)
-        quantity = get_book_quantity_from_page(tree=tree)
-        price_quantity = price * quantity
-        logger.info(f"Get book price at {url} : foud {price_quantity}")
-        return price_quantity
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Erreur lors de la requete HTML : {e}")
-        return 0.0
+# def main():
 
-def get_book_price_from_page(tree: HTMLParser) -> float:
-    """ trouve le prix d'un livre à partir d'un objet HTML
+#     base_url = "https://books.toscrape.com/catalogue/page-1.html"
 
-    Arguments:
-        tree {HTMLParser} -- Objet HTML de la page du livre
+#     all_books_urls = get_all_books_urls(base_url)
+#     total_price = []
+#     with requests.Session() as session:
+#         for url in all_books_urls:
+#             price = get_books_price(url=url, sesssion=session)
+#             total_price.append(price)
 
-    Returns:
-        float -- le prix du livre
-    """
-    price_noeud = tree.css_first("p.price_color")
-    if price_noeud:
-        price_string = price_noeud.text()
-    else:
-        logger.error(f"Aucun noeud de prix trouver sur la page")
-        return 0.0
-    try:
-        price = re.findall(r"[0-9.]+", price_string)[0]
-    except IndexError as e:
-        logger.error(f'Impossible de trouver le prix du livree : {e}')
-        return 0.0
-    else:
-        return float(price)
-    
-
-def get_book_quantity_from_page(tree: HTMLParser) -> int:
-
-    """ trouve la quantité d'un livre à partir d'un objet HTML
-
-    Arguments:
-        tree {HTMLParser} -- Objet HTML de la page du livre
-
-    Returns:
-        float -- la quantité du livre
-    """
-    try:
-        quantity_noeud = tree.css_first("p.instock.availability")
-        return int(re.findall(r"\d+", quantity_noeud.text())[0])
-    except AttributeError as e:
-        logger.error(f"Aucun noeud p.instock.availability n'a été trouver sur la page")
-        return 0
-    except IndexError as e:
-        logger.error(f"Aucun nombre n'a été trouver dans le noeud p.instock.availability sur la page : {e}")
-        return 0
+#     print(sum(total_price))
 
 
+####################################
+#####  Changer le  User Agent ######
+####################################
+
+# def main():
+#     Url = "https://www.emploitogo.info/"
+
+#     User_Agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:127.0) Gecko/20100101 Firefox/127.0"
+
+#     header = {"User_Agent" : User_Agent}
+
+#     response = requests.get(Url, headers=header)
+
+#     soup = BeautifulSoup(response.text, "html.parser")
+#     with open("index.html", "w") as f:
+#         f.write(soup.text)
+
+
+#######################################
+#####  Utilisation de Playwright ######
+#######################################
+
+from playwright.sync_api import sync_playwright
 
 def main():
 
-    base_url = "https://books.toscrape.com/catalogue/page-1.html"
-
-    all_books_urls = get_all_books_urls(base_url)
-    total_price = []
-    with requests.Session() as session:
-        for url in all_books_urls:
-            price = get_books_price(url=url, sesssion=session)
-            total_price.append(price)
-
-    print(sum(total_price))
-
+    with sync_playwright() as playwright:
+        browser = playwright.firefox.launch(headless=False)
+        page = browser.new_page()
+        page.goto("https://www.emploitogo.info/")
+        page.pause()
 
 
 if __name__ == '__main__':
