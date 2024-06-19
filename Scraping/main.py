@@ -405,8 +405,17 @@ def main():
         browser = playwright.firefox.launch(headless=False)
         page = browser.new_page()
         page.goto("https://www.emploitogo.info/")
-        page.pause()
+        button = page.get_by_role("heading", name="L’Agence Nationale du").get_by_role("link")
+        if button:
+            button.click()
+            page.frame_locator("iframe[name=\"aswift_7\"]").get_by_label("Fermer l'annonce")
+            page.frame_locator("iframe[name=\"aswift_8\"]").get_by_label("Fermer l'annonce").click()
+            with page.expect_download() as download_info:
+                with page.expect_popup() as page1_info:
+                    page.get_by_role("link", name="Cliquez ici pour voir la")
+        page.close
 
 
 if __name__ == '__main__':
     main()
+
